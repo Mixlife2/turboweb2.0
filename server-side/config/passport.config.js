@@ -46,7 +46,7 @@ const searchToken = (req) => {
                     password = creaHash(password);
                     console.log("Contraseña hasheada:", password);
     
-                    let newUser = await usersManager.create({ username, email, password });
+                    let newUser = await usersManager.create({ username, email, password, role});
                     console.log("Nuevo usuario creado:", newUser);
             
                     return done(null, newUser);
@@ -78,11 +78,9 @@ const searchToken = (req) => {
                         
                         return done(null, false);
                     }
+
     
                     let token = jwt.sign(user, SECRET, { expiresIn: "1h" });
-    
-                    //aca las cookies se rompen
-                    //
                     
                     return done(null, user, token);
                 } catch (error) {
@@ -104,7 +102,7 @@ const searchToken = (req) => {
             },
             async (contentToken, done) => {
                 try {
-                    console.log("passport")
+                    
                     return done(null, contentToken)
                 } catch (error) {
                     return done (error)

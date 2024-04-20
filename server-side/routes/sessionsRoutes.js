@@ -19,7 +19,8 @@ router.post('/login',passport.authenticate("login", {session: false, failureRedi
     let user=req.user
     user={...user}
     delete user.password
-    let token = jwt.sign(user, SECRET, { expiresIn: "1h" });
+    let token = req.authInfo;
+
     res.cookie("turboCookie", token, {maxAge: 1000*60*60, signed:true, httpOnly: true})
 
     req.user=user 
@@ -31,6 +32,7 @@ router.post('/login',passport.authenticate("login", {session: false, failureRedi
         message:"Login correcto", user,
     })
 })
+
 
 router.get('/errorRegister', (req, res)=> {
     return res.redirect('register?error=Error en el proceso de registro')
@@ -50,7 +52,6 @@ router.get('/profile', passportCall("jwt"), auth(["freelancer", "bussiness"]), (
         datosUsuario: req.user
     });
 });
-
 
 
 router.get('/logout',(req,res)=>{
