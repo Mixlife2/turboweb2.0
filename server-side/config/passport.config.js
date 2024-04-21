@@ -2,6 +2,7 @@ import passport from "passport"
 import local from "passport-local"
 import jwt from "jsonwebtoken"
 import passportjwt from 'passport-jwt'
+import google from 'passport-google-oauth20'
 import { UsersManager } from "../dao/DBmanager/usersManager.js"
 import { creaHash, SECRET, validaPassword } from "../utils.js"
 
@@ -92,6 +93,42 @@ const searchToken = (req) => {
     );
     
 
+    passport.use(
+        "google",
+        new google.Strategy(
+            {
+                clientID: process.env.GOOGLE_CLIENT_ID,
+                clientSecret: process.env.GOOGLE_CLIENT_SECRET,
+                callbackURL: process.env.GOOGLE_CALLBACK_URL,
+                scope: ['profile', 'email']
+            },
+            async (accessToken, refreshToken, profile, done) => {
+                try {
+                    console.log("Datos de perfil de Google:", profile);
+                    let username=profile._json.name
+                    let email=profile._json.email
+                    if(!email){
+                        console.log("Correo electrónico no encontrado en el perfil de Google");
+                        return done(null, false)
+                    }
+                    let user=await usersManager.getBy({email})
+                    if(!user){
+                        user=await usersManager.create({
+                            username, email, 
+                            profileGoogle: profile
+                        })
+                        console.log("Nuevo usuario creado con perfil de Google:", user);
+                    }
+                    let token = jwt.sign(user, SECRET, { expiresIn: "1h" });
+                    console.log("Usuario autenticado:", user, token);
+                    return done(null, user, token)
+                } catch (error) {
+                    console.error("Error en la estrategia de Google:", error);
+                    return done(error)
+                }
+            }
+        )
+    )
 
     passport.use(
         "jwt",

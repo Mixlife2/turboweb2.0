@@ -43,6 +43,29 @@ router.post('/register', passport.authenticate("register", {session: false, fail
     return res.redirect(`/register?mensaje=Registro exitoso para ${req.user.username}`);
 });
 
+router.get("/google", passport.authenticate("google",passportCall("jwt"), {session: false}), (req, res) => {})
+
+router.get('/callbackGoogle', passport.authenticate("google", {session: false, failureRedirect:"/api/sessions/errorGoogle"}), (req,res)=>{
+
+    res.setHeader('Content-Type','application/json');
+    return res.status(200).json({
+        payload:"Login correcto", 
+        user:req.user
+        
+    });
+})
+
+router.get("/errorGoogle", (req, res)=>{
+    res.setHeader('Content-Type','application/json');
+    return res.status(500).json(
+        {
+            error:`Error inesperado en el servidor - Intente más tarde, o contacte a su administrador`,
+            detalle:`Fallo al autenticar con Google`
+        }
+    )
+    
+})
+
 router.get('/profile', passportCall("jwt"), auth(["freelancer", "bussiness"]), (req,res)=>{
 
 
