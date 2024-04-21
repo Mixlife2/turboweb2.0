@@ -6,11 +6,7 @@ import Home from './pages/Home';
 
 const App: React.FC = () => {
     return (
-        <div className="App">
-            <div className="bg-blue-500">
-  Esto tiene un fondo azul.
-</div>
-
+        <div>
             <Router>
                 <Routes>
                     <Route path="/" element={<Home />} />
