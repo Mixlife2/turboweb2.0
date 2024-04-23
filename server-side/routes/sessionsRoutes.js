@@ -27,10 +27,7 @@ router.post('/login',passport.authenticate("login", {session: false, failureRedi
 
 
     
-    res.setHeader('Content-Type','application/json')
-    res.status(200).json({
-        message:"Login correcto", user,
-    })
+    res.redirect("/profile");
 })
 
 
@@ -47,13 +44,22 @@ router.get("/google", passport.authenticate("google",passportCall("jwt"), {sessi
 
 router.get('/callbackGoogle', passport.authenticate("google", {session: false, failureRedirect:"/api/sessions/errorGoogle"}), (req,res)=>{
 
-    res.setHeader('Content-Type','application/json');
-    return res.status(200).json({
-        payload:"Login correcto", 
-        user:req.user
+    let user=req.user
+    user={...user}
+    delete user.password
+    let token = req.authInfo;
+
+    res.cookie("turboCookie", token, {maxAge: 1000*60*60, signed:true, httpOnly: true})
+
+    req.user=user 
+
+
+    
+    res.redirect("/profile");
+        
+        
         
     });
-})
 
 router.get("/errorGoogle", (req, res)=>{
     res.setHeader('Content-Type','application/json');
@@ -66,34 +72,25 @@ router.get("/errorGoogle", (req, res)=>{
     
 })
 
-router.get('/profile', passportCall("jwt"), auth(["freelancer", "bussiness"]), (req,res)=>{
 
-
-    res.setHeader('Content-Type','application/json');
+router.get('/profile', passportCall("jwt"), auth(["freelancer", "business"]), (req, res) => {
+    res.setHeader('Content-Type', 'application/json');
     res.status(200).json({
-        mensaje:'Perfil usuario',
-        datosUsuario: req.user
+        mensaje: 'Perfil usuario obtenido correctamente',
     });
 });
 
 
-router.get('/logout',(req,res)=>{
 
-    req.session.destroy(e=>{
-        if(e){
-            res.setHeader('Content-Type','application/json');
-            return res.status(500).json(
-                {
-                    error:`Error inesperado en el servidor - Intente más tarde, o contacte a su administrador`,
-                    detalle:`${e.message}`
-                }
-            )
-            
-        }
-    })
+
+
+
+router.get('/logout', (req, res) => {
+    // Eliminar la cookie turboCookie
+    res.clearCookie('turboCookie');
     
-    res.setHeader('Content-Type','application/json');
+    res.setHeader('Content-Type', 'application/json');
     res.status(200).json({
-        message:"Logout exitoso"
+        message: "Logout exitoso",
     });
 });

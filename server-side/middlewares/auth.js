@@ -1,5 +1,7 @@
    export const auth=(accesos=[])=>{
         return (req, res, next)=>{
+            console.log("Usuario autenticado:", req.user); // Agrega un registro para verificar si el usuario está autenticado correctamente
+        console.log("Roles permitidos:", accesos); 
             console.log("Usuario autenticado:", req.user);
             accesos=accesos.map(a=>a.toLowerCase())
     
@@ -20,6 +22,7 @@
             
     
             if(!accesos.includes(req.user.role.toLowerCase())){
+                console.log("Rol del usuario autenticado:", req.user.role);
                 res.setHeader('Content-Type','application/json');
                 return res.status(403).json({error:`No tiene privilegios suficientes para acceder al recurso`})
             }

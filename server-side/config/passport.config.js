@@ -3,6 +3,7 @@ import local from "passport-local"
 import jwt from "jsonwebtoken"
 import passportjwt from 'passport-jwt'
 import google from 'passport-google-oauth20'
+import linkedin from 'passport-linkedin-oauth2'
 import { UsersManager } from "../dao/DBmanager/usersManager.js"
 import { creaHash, SECRET, validaPassword } from "../utils.js"
 
@@ -105,30 +106,64 @@ const searchToken = (req) => {
             async (accessToken, refreshToken, profile, done) => {
                 try {
                     console.log("Datos de perfil de Google:", profile);
-                    let username=profile._json.name
-                    let email=profile._json.email
-                    if(!email){
+                    let email = profile._json.email;
+                    if (!email) {
                         console.log("Correo electrónico no encontrado en el perfil de Google");
-                        return done(null, false)
+                        return done(null, false);
                     }
-                    let user=await usersManager.getBy({email})
-                    if(!user){
-                        user=await usersManager.create({
-                            username, email, 
-                            profileGoogle: profile
-                        })
-                        console.log("Nuevo usuario creado con perfil de Google:", user);
+                    let user = await usersManager.getBy({ email });
+                    if (!user) {
+                        console.log("Usuario no encontrado en la base de datos para el correo electrónico:", email);
+                        return done(null, false);
                     }
                     let token = jwt.sign(user, SECRET, { expiresIn: "1h" });
                     console.log("Usuario autenticado:", user, token);
-                    return done(null, user, token)
+                    return done(null, user, token);
                 } catch (error) {
                     console.error("Error en la estrategia de Google:", error);
-                    return done(error)
+                    return done(error);
                 }
             }
         )
-    )
+    );
+    
+
+    // passport.use(
+    //     "linkedin",
+    //     new linkedin.Strategy(
+    //         {
+    //             clientID: LINKEDIN_KEY,
+    //             clientSecret: LINKEDIN_SECRET,
+    //             callbackURL: "http://127.0.0.1:3000/auth/linkedin/callback",
+    //             scope: ['r_emailaddress', 'r_liteprofile'],
+    //         },
+    //         async (accessToken, refreshToken, profile, done) => {
+    //             try {
+    //                 console.log("Datos de perfil de Google:", profile);
+    //                 let username=profile._json.name
+    //                 let email=profile._json.email
+    //                 if(!email){
+    //                     console.log("Correo electrónico no encontrado en el perfil de Google");
+    //                     return done(null, false)
+    //                 }
+    //                 let user=await usersManager.getBy({email})
+    //                 if(!user){
+    //                     user=await usersManager.create({
+    //                         username, email, 
+    //                         profileGoogle: profile
+    //                     })
+    //                     console.log("Nuevo usuario creado con perfil de Google:", user);
+    //                 }
+    //                 let token = jwt.sign(user, SECRET, { expiresIn: "1h" });
+    //                 console.log("Usuario autenticado:", user, token);
+    //                 return done(null, user, token)
+    //             } catch (error) {
+    //                 console.error("Error en la estrategia de Google:", error);
+    //                 return done(error)
+    //             }
+    //         }
+    //     )
+    // )
 
     passport.use(
         "jwt",

@@ -19,11 +19,10 @@ router.get('/register', (req, res) => {
 });
 
 
-router.get('/profile', auth(["freelancer", "business"]), (req, res) => {
+router.get('/profile', passportCall("jwt"), auth(["freelancer", "bussiness"]), (req, res) => {
     let user = req.user;
     res.status(200).render('profile', { user, login: req.user });
 });
-
 
 router.get('/logout',(req,res)=>{
 
