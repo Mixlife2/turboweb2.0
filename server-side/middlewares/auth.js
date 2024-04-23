@@ -1,32 +1,23 @@
-   export const auth=(accesos=[])=>{
-        return (req, res, next)=>{
-            console.log("Usuario autenticado:", req.user); // Agrega un registro para verificar si el usuario está autenticado correctamente
-        console.log("Roles permitidos:", accesos); 
-            console.log("Usuario autenticado:", req.user);
-            accesos=accesos.map(a=>a.toLowerCase())
-    
-            if(accesos.includes("public")){
-                return next()
-            }
-    
-            if (!req.user) {
+import passport from 'passport';
 
-                res.setHeader('Content-Type', 'application/json');
-                return res.status(401).json({ error: `No se ha iniciado sesión` });
-            }
-            
-            if (!req.user.role) {
-                res.setHeader('Content-Type', 'application/json');
-                return res.status(401).json({ error: `El usuario autenticado no tiene un rol asignado` });
-            }
-            
-    
-            if(!accesos.includes(req.user.role.toLowerCase())){
-                console.log("Rol del usuario autenticado:", req.user.role);
-                res.setHeader('Content-Type','application/json');
-                return res.status(403).json({error:`No tiene privilegios suficientes para acceder al recurso`})
-            }
-    
-            next()
-        }
+export const passportCall = (strategy) => {
+  return async (req, res, next) => {
+    passport.authenticate(strategy, function (err, user, info) {
+      if (err) return next(err);
+      if (!user) return res.status(401).json({ error: info.message });
+      req.login(user, { session: false }, function (err) {
+        if (err) return next(err);
+        return next();
+      });
+    })(req, res, next);
+  };
+};
+
+export const auth = (roles) => {
+  return (req, res, next) => {
+    if (!roles.includes(req.user.role)) {
+      return res.status(403).json({ error: 'No tienes permisos para acceder a esta ruta' });
     }
+    next();
+  };
+};

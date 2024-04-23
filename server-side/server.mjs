@@ -5,6 +5,8 @@ import passport from 'passport';
 import { engine } from 'express-handlebars';
 import { router as sessionsRoutes } from './routes/sessionsRoutes.js';
 import { router as viewsRoutes } from './routes/viewsRoutes.js';
+import { router as usersRoutes } from './routes/usersRoutes.js';
+import { router as projectsRoutes } from './routes/projectsRoutes.js';
 import { initPassport } from './config/passport.config.js';
 import cookieParser from 'cookie-parser';
 import './db.js';
@@ -33,6 +35,8 @@ app.use(passport.initialize())
 
 app.use('/', viewsRoutes);
 app.use("/api/sessions", sessionsRoutes)
+app.use("/api/users", usersRoutes)
+app.use("/api/projects", projectsRoutes)
 
 app.get('*', (req, res) => {
   res.status(404).send("error 404, not found.");

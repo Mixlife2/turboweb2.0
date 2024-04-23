@@ -27,39 +27,39 @@ const searchToken = (req) => {
         "register",
         new local.Strategy(
             {
-                usernameField:"email",
+                usernameField: "username", // Cambiar a "username"
                 passReqToCallback: true,
-                
             },
-            async function(req,username, password, done) {
+            async function(req, username, password, done) {
                 try {
                     console.log("Datos de entrada en la estrategia de registro:", req.body);
-                    let { username, email, role } = req.body;
+                    let { role, email } = req.body; // Mantener email si también lo necesitas
                     if (!username || !email || !role) {
                         console.log("Falta algún dato de entrada");
-                        return done(null,false);
+                        return done(null, false);
                     }
                     let exist = await usersManager.getBy({ email });
                     if (exist) {
                         console.log("El usuario ya existe");
-                        return done (null, false);
+                        return done(null, false);
                     }
-                
+                    
                     password = creaHash(password);
                     console.log("Contraseña hasheada:", password);
     
-                    let newUser = await usersManager.create({ username, email, password, role});
+                    // Asegúrate de pasar el campo `username` en lugar de `email`
+                    let newUser = await usersManager.create({ username, email, password, role });
                     console.log("Nuevo usuario creado:", newUser);
             
                     return done(null, newUser);
-                   
-                   
                 } catch (error) {
-                    return done(error)
+                    return done(error);
                 }
             }
         )
-    )
+    );
+    
+    
 
 
     passport.use(
