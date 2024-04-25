@@ -9,10 +9,8 @@ import { router as usersRoutes } from './routes/usersRoutes.js';
 import { router as projectsRoutes } from './routes/projectsRoutes.js';
 import { initPassport } from './config/passport.config.js';
 import cookieParser from 'cookie-parser';
+import { config } from './config/config.js';
 import './db.js';
-
-// Load environment variables from .env file
-dotenv.config();
 
 // Create Express app
 const app = express();
@@ -43,9 +41,10 @@ app.get('*', (req, res) => {
   
 });
 
-// Start server
-const PORT = process.env.PORT || 5000;
+
+// Start the server
+const PORT = config.PORT || 8080;
 app.listen(PORT, () => {
+  
   console.log(`Server is running on port ${PORT}`);
 });
-
