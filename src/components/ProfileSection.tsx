@@ -1,6 +1,22 @@
-import React from 'react';
+import React, {useState, useEffect} from 'react';
 
 const ProfileSection: React.FC = () => {
+    // const [user, setUser] = useState(null);
+  
+    // useEffect(() => {
+    //   const fetchUser = async () => {
+    //     try {
+    //       const response = await fetch('http://localhost:5000/api/users');
+    //       const data = await response.json();
+    //       setUser(data);
+    //     } catch (error) {
+    //       console.error('Error fetching user data:', error);
+    //     }
+    //   };
+  
+    //   fetchUser();
+    // }, []);
+
     return (
         <div className="bg-gray-200 p-6 flex justify-between items-start">
             <div className="flex space-x-4">
